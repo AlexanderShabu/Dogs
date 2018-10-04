@@ -1,60 +1,44 @@
-var port = process.env.PORT || 3000,
-    http = require('http'),
-    fs = require('fs');
+var express = require("express");
+var app = express();
 
-var app = http.createServer(function (req, res) {
-  if (req.url.indexOf('/img') != -1) {
-    var filePath = req.url.split('/img')[1];
-    fs.readFile(__dirname + '/public/img' + filePath, function (err, data) {
-      if (err) {
-        res.writeHead(404, {'Content-Type': 'text/plain'});
-        res.write('Error 404: Resource not found.');
-        console.log(err);
-      } else {
-        res.writeHead(200, {'Content-Type': 'image/svg+xml'});
-        res.write(data);
-      }  
-      res.end();
-    });
-  } else if (req.url.indexOf('/js') != -1) {
-    var filePath = req.url.split('/js')[1];
-    fs.readFile(__dirname + '/public/js' + filePath, function (err, data) {
-      if (err) {
-        res.writeHead(404, {'Content-Type': 'text/plain'});
-        res.write('Error 404: Resource not found.');
-        console.log(err);
-      } else {
-        res.writeHead(200, {'Content-Type': 'text/javascript'});
-        res.write(data);
-      }  
-      res.end();
-    });
-  } else if(req.url.indexOf('/css') != -1) {
-    var filePath = req.url.split('/css')[1];
-    fs.readFile(__dirname + '/public/css' + filePath, function (err, data) {
-      if (err) {
-        res.writeHead(404, {'Content-Type': 'text/plain'});
-        res.write('Error 404: Resource not found.');
-        console.log(err);
-      } else {
-        res.writeHead(200, {'Content-Type': 'text/css'});
-        res.write(data);
-      }
-      res.end();
-    });
-  } else {
-    fs.readFile(__dirname + '/public/index.html', function (err, data) {
-      if (err) {
-        res.writeHead(404, {'Content-Type': 'text/plain'});
-        res.write('Error 404: Resource not found.');
-        console.log(err);
-      } else {
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.write(data);
-      }
-      res.end();
-    });
-  }
-}).listen(port, '0.0.0.0');
+app.use(express.static("public"));
+app.set("view engine","ejs");
 
-module.exports = app;
+// "/" => "Hi there!"
+app.get("/", function(req, res){
+    const someParam="Просто пробуем передавать параметры";
+    res.render("home",{theParam: someParam});
+   
+});
+
+// "/bye" => "Goodbye!"
+app.get("/bye", function(req, res){
+  res.send("Goodbye!!"); 
+});
+
+// "/dog" => "MEOW!"
+app.get("/dog", function(req, res){
+    console.log("SOMEONE MADE A REQUEST TO /DOG!!!")
+   res.send("MEOW!"); 
+});
+
+app.get("/r/:subredditName", function(req, res){
+    var subreddit = req.params.subredditName;
+   res.send("WELCOME TO THE " + subreddit.toUpperCase() + " SUBREDDIT!"); 
+});
+
+app.get("/r/:subredditName/comments/:id/:title/", function(req, res){
+    console.log(req.params);
+    res.send("WELCOME TO THE COMMENTS PAGE!"); 
+});
+
+app.get("*", function(req, res){
+  res.send("YOU ARE A STAR!!!"); 
+});
+
+
+// Tell Express to listen for requests (start server)
+
+app.listen(process.env.PORT, process.env.IP, function(){
+    console.log("Server has started!!!");
+});
